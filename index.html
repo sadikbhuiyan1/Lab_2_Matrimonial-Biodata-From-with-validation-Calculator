@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrimonial Biodata Form</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        /* Custom scrollbar for subtle feel */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+            display: block;
+            font-size: 0.875rem;
+        }
+        .input-field, .select-field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .input-field:focus, .select-field:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        /* Style for displaying validation errors */
+        .error-message {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl p-6 sm:p-10 border border-gray-100">
+        
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-center text-indigo-700 mb-2">
+            Matrimonial Biodata
+        </h1>
+        <p class="text-center text-gray-500 mb-8">
+            Please fill in your authentic details carefully.
+        </p>
+
+        <form id="biodataForm" onsubmit="handleFormSubmission(event)">
+            
+            <!-- SECTION 1: Personal Details -->
+            <fieldset class="mb-10 p-6 border border-indigo-200 rounded-xl bg-indigo-50">
+                <legend class="text-xl font-bold text-indigo-700 px-3">1. Personal Information</legend>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    
+                    <div class="input-group">
+                        <label for="fullName">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" id="fullName" class="input-field" required onblur="validateField(this)">
+                        <p class="error-message"></p>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="dob">Date of Birth <span class="text-red-500">*</span></label>
+                        <input type="date" id="dob" class="input-field" required onchange="calculateAgeAndBmi()" onblur="validateField(this)">
+                        <p class="error-message"></p>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="gender">Gender <span class="text-red-500">*</span></label>
+                        <select id="gender" class="select-field" required onblur="validateField(this)">
+                            <option value="">Select...</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <p class="error-message"></p>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="maritalStatus">Marital Status <span class="text-red-500">*</span></label>
+                        <select id="maritalStatus" class="select-field" required onblur="validateField(this)">
+                            <option value="">Select...</option>
+                            <option value="Never Married">Never Married</option>
+                            <option value="Divorced">Divorced</option>
+                            <option value="Widowed">Widowed</option>
+                        </select>
+                        <p class="error-message"></p>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- SECTION 2: Calculator & Physical Attributes -->
+            <fieldset class="mb-10 p-6 border border-green-200 rounded-xl bg-green-50">
+                <legend class="text-xl font-bold text-green-700 px-3">2. Health & Calculator</legend>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    
+                    <div class="input-group">
+                        <label>Calculated Age</label>
+                        <div id="displayAge" class="p-2 border border-green-300 bg-white rounded-lg font-bold text-lg text-green-600">
+                            -- Years
+                        </div>
+                    </div>
+
+                    <!-- BMI Unit Toggle -->
+                    <div class="input-group">
+                        <label for="unitToggle">Measurement Units</label>
+                        <div class="flex items-center space-x-4">
+                            <button type="button" id="metricBtn" onclick="setUnits('metric')" class="px-4 py-2 rounded-full font-medium text-sm transition-colors duration-200 bg-green-600 text-white shadow-md hover:bg-green-700">
+                                Metric (cm/kg)
+                            </button>
+                            <button type="button" id="imperialBtn" onclick="setUnits('imperial')" class="px-4 py-2 rounded-full font-medium text-sm transition-colors duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                                Imperial (ft/lbs)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Metric Inputs -->
+                    <div id="metricFields" class="input-group md:col-span-2 grid grid-cols-2 gap-6">
+                        <div class="input-group">
+                            <label for="heightCm">Height (cm) <span class="text-red-500">*</span></label>
+                            <input type="number" id="heightCm" class="input-field" placeholder="e.g. 175" oninput="calculateAgeAndBmi()">
+                            <p class="error-message"></p>
+                        </div>
+                        <div class="input-group">
+                            <label for="weightKg">Weight (kg) <span class="text-red-500">*</span></label>
+                            <input type="number" id="weightKg" class="input-field" placeholder="e.g. 70" oninput="calculateAgeAndBmi()">
+                            <p class="error-message"></p>
+                        </div>
+                    </div>
+
+                    <!-- Imperial Inputs (Hidden by default) -->
+                    <div id="imperialFields" class="input-group md:col-span-2 grid grid-cols-3 gap-6 hidden">
+                        <div class="input-group">
+                            <label for="heightFt">Height (Feet) <span class="text-red-500">*</span></label>
+                            <input type="number" id="heightFt" class="input-field" placeholder="e.g. 5" oninput="calculateAgeAndBmi()">
+                        </div>
+                        <div class="input-group">
+                            <label for="heightIn">Height (Inches) <span class="text-red-500">*</span></label>
+                            <input type="number" id="heightIn" class="input-field" placeholder="e.g. 8" oninput="calculateAgeAndBmi()">
+                        </div>
+                        <div class="input-group">
+                            <label for="weightLbs">Weight (lbs) <span class="text-red-500">*</span></label>
+                            <input type="number" id="weightLbs" class="input-field" placeholder="e.g. 154" oninput="calculateAgeAndBmi()">
+                        </div>
+                    </div>
+
+                    <div class="input-group md:col-span-2">
+                        <label>Calculated BMI</label>
+                        <div id="displayBmi" class="p-2 border border-green-300 bg-white rounded-lg font-bold text-lg text-green-600">
+                            -- (Category)
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+            
+            <!-- SECTION 3: Educational & Professional -->
+            <fieldset class="mb-10 p-6 border border-indigo-200 rounded-xl bg-indigo-50">
+                <legend class="text-xl font-bold text-indigo-700 px-3">3. Education & Career</legend>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <div class="input-group">
+                        <label for="education">Highest Education <span class="text-red-500">*</span></label>
+                        <input type="text" id="education" class="input-field" required placeholder="e.g. M.Tech (Computer Science)" onblur="validateField(this)">
+                        <p class="error-message"></p>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="occupation">Occupation <span class="text-red-500">*</span></label>
+                        <input type="text" id="occupation" class="input-field" required placeholder="e.g. Software Engineer" onblur="validateField(this)">
+                        <p class="error-message"></p>
+                    </div>
+
+                    <div class="input-group md:col-span-2">
+                        <label for="income">Annual Income (Optional)</label>
+                        <input type="text" id="income" class="input-field" placeholder="e.g. ₹ 15,00,000">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- SECTION 4: Contact & Summary -->
+            <fieldset class="mb-10 p-6 border border-indigo-200 rounded-xl bg-indigo-50">
+                <legend class="text-xl font-bold text-indigo-700 px-3">4. Summary</legend>
+                
+                <div class="input-group mb-6">
+                    <label for="contactEmail">Contact Email <span class="text-red-500">*</span></label>
+                    <input type="email" id="contactEmail" class="input-field" required placeholder="user@example.com" onblur="validateField(this)">
+                    <p class="error-message"></p>
+                </div>
+                
+                <div class="input-group">
+                    <label for="aboutMe">About Me (A short bio) <span class="text-red-500">*</span></label>
+                    <textarea id="aboutMe" rows="4" class="input-field resize-none" required placeholder="Write a few lines about your personality, hobbies, and family values..." onblur="validateField(this)"></textarea>
+                    <p class="error-message"></p>
+                </div>
+            </fieldset>
+
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg transform hover:scale-[1.01]">
+                Generate & Finalize Biodata
+            </button>
+        </form>
+
+        <!-- Modal/Summary Display Area -->
+        <div id="summaryModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-xl max-w-lg w-full p-8 shadow-2xl transform transition-all duration-300 scale-100">
+                <h2 class="text-2xl font-bold text-indigo-700 mb-4 border-b pb-2">Biodata Summary</h2>
+                <div id="biodataOutput" class="text-gray-700 space-y-2 text-sm">
+                    <!-- Dynamic content inserted here -->
+                </div>
+                <button onclick="closeSummaryModal()" class="mt-6 w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition duration-300">
+                    Close
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentUnit = 'metric'; // Default unit is metric
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize unit display on load
+            setUnits(currentUnit);
+            // Attach validation listeners to all required inputs
+            document.querySelectorAll('#biodataForm [required]').forEach(input => {
+                input.addEventListener('input', () => {
+                    if (input.value.trim() !== "") {
+                        // Clear error styling on input change
+                        input.classList.remove('border-red-500');
+                        // Find the sibling error message container
+                        const errorMessageElement = input.closest('.input-group')?.querySelector('.error-message');
+                        if(errorMessageElement) errorMessageElement.textContent = '';
+                    }
+                });
+            });
+        });
+
+        // =========================================================
+        // UNIT TOGGLE LOGIC
+        // =========================================================
+
+        function setUnits(unit) {
+            currentUnit = unit;
+            const metricFields = document.getElementById('metricFields');
+            const imperialFields = document.getElementById('imperialFields');
+            const metricBtn = document.getElementById('metricBtn');
+            const imperialBtn = document.getElementById('imperialBtn');
+
+            // Toggle visibility of unit fields
+            if (unit === 'metric') {
+                metricFields.classList.remove('hidden');
+                imperialFields.classList.add('hidden');
+                
+                // Toggle button active state
+                metricBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                metricBtn.classList.add('bg-green-600', 'text-white');
+                
+                imperialBtn.classList.remove('bg-green-600', 'text-white');
+                imperialBtn.classList.add('bg-gray-200', 'text-gray-700');
+
+            } else { // imperial
+                metricFields.classList.add('hidden');
+                imperialFields.classList.remove('hidden');
+
+                // Toggle button active state
+                imperialBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                imperialBtn.classList.add('bg-green-600', 'text-white');
+                
+                metricBtn.classList.remove('bg-green-600', 'text-white');
+                metricBtn.classList.add('bg-gray-200', 'text-gray-700');
+            }
+            calculateAgeAndBmi(); // Recalculate based on new units
+        }
+
+
+        // =========================================================
+        // AGE & BMI CALCULATION LOGIC
+        // =========================================================
+
+        function calculateAgeAndBmi() {
+            // 1. AGE CALCULATION
+            const dobInput = document.getElementById('dob').value;
+            let ageDisplay = '-- Years';
+            if (dobInput) {
+                const birthDate = new Date(dobInput);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const m = today.getMonth() - birthDate.getMonth();
+                // Adjust age if birthday hasn't occurred yet this year
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                ageDisplay = age >= 0 ? `${age} Years` : 'Invalid DOB';
+            }
+            document.getElementById('displayAge').textContent = ageDisplay;
+
+            // 2. BMI CALCULATION
+            let heightMeters = 0;
+            let weightKg = 0;
+            let bmiText = '-- (Category)';
+
+            if (currentUnit === 'metric') {
+                const heightCm = parseFloat(document.getElementById('heightCm').value);
+                const weightVal = parseFloat(document.getElementById('weightKg').value);
+                if (heightCm > 0 && weightVal > 0) {
+                    heightMeters = heightCm / 100;
+                    weightKg = weightVal;
+                }
+            } else { // Imperial
+                const heightFt = parseFloat(document.getElementById('heightFt').value) || 0;
+                const heightIn = parseFloat(document.getElementById('heightIn').value) || 0;
+                const weightVal = parseFloat(document.getElementById('weightLbs').value);
+
+                if ((heightFt > 0 || heightIn > 0) && weightVal > 0) {
+                    // Convert total height to meters (1 ft = 0.3048 m, 1 in = 0.0254 m)
+                    heightMeters = (heightFt * 0.3048) + (heightIn * 0.0254);
+                    // Convert weight to kg (1 lb = 0.453592 kg)
+                    weightKg = weightVal * 0.453592;
+                }
+            }
+            
+            if (heightMeters > 0 && weightKg > 0) {
+                const bmi = weightKg / (heightMeters * heightMeters);
+                const roundedBmi = bmi.toFixed(1);
+                
+                let category = '';
+                if (bmi < 18.5) {
+                    category = 'Underweight';
+                } else if (bmi >= 18.5 && bmi <= 24.9) {
+                    category = 'Healthy Weight';
+                } else if (bmi >= 25 && bmi <= 29.9) {
+                    category = 'Overweight';
+                } else {
+                    category = 'Obese';
+                }
+
+                bmiText = `${roundedBmi} (${category})`;
+            }
+
+            document.getElementById('displayBmi').textContent = bmiText;
+        }
+
+        // =========================================================
+        // FORM VALIDATION LOGIC
+        // =========================================================
+        
+        function validateField(input) {
+            // Find the closest parent input-group and then the error message element
+            const group = input.closest('.input-group');
+            const errorMessageElement = group ? group.querySelector('.error-message') : null;
+            
+            if (!input.hasAttribute('required')) return true;
+
+            let message = '';
+            if (input.value.trim() === "") {
+                message = 'This field is required.';
+            } else if (input.type === 'email' && !input.value.includes('@')) {
+                message = 'Please enter a valid email address.';
+            }
+
+            if (message) {
+                input.classList.add('border-red-500');
+                if (errorMessageElement) errorMessageElement.textContent = message;
+                return false;
+            } else {
+                input.classList.remove('border-red-500');
+                if (errorMessageElement) errorMessageElement.textContent = '';
+                return true;
+            }
+        }
+
+        function validateForm() {
+            let isValid = true;
+            // Validate all required fields
+            document.querySelectorAll('#biodataForm [required]').forEach(input => {
+                if (!validateField(input)) {
+                    isValid = false;
+                }
+            });
+            
+            // Explicitly check calculator fields as they don't have built-in required attributes
+            const calculatorFields = currentUnit === 'metric' 
+                ? [document.getElementById('heightCm'), document.getElementById('weightKg')]
+                : [document.getElementById('heightFt'), document.getElementById('weightLbs')]; // Height in/ft are optional if the other is set
+
+            calculatorFields.forEach(field => {
+                if (field && !field.value.trim()) {
+                    field.classList.add('border-red-500');
+                    // Find the sibling error message container for this field
+                    const errorMessageElement = field.closest('.input-group')?.querySelector('.error-message');
+                    if (errorMessageElement) errorMessageElement.textContent = 'Required for BMI calculation.';
+                    isValid = false;
+                }
+            });
+            
+            return isValid;
+        }
+
+        // =========================================================
+        // SUBMISSION & MODAL LOGIC
+        // =========================================================
+
+        function handleFormSubmission(event) {
+            event.preventDefault();
+            
+            if (validateForm()) {
+                const data = {
+                    fullName: document.getElementById('fullName').value,
+                    dob: document.getElementById('dob').value,
+                    age: document.getElementById('displayAge').textContent,
+                    gender: document.getElementById('gender').value,
+                    maritalStatus: document.getElementById('maritalStatus').value,
+                    
+                    education: document.getElementById('education').value,
+                    occupation: document.getElementById('occupation').value,
+                    income: document.getElementById('income').value || 'Not provided',
+                    
+                    contactEmail: document.getElementById('contactEmail').value,
+                    aboutMe: document.getElementById('aboutMe').value,
+                    
+                    bmiResult: document.getElementById('displayBmi').textContent,
+                    height: currentUnit === 'metric' 
+                        ? `${document.getElementById('heightCm').value} cm`
+                        : `${document.getElementById('heightFt').value || 0} ft ${document.getElementById('heightIn').value || 0} in`,
+                    weight: currentUnit === 'metric' 
+                        ? `${document.getElementById('weightKg').value} kg`
+                        : `${document.getElementById('weightLbs').value} lbs`,
+                };
+
+                displaySummary(data);
+            } else {
+                 // Scroll to the first error
+                const firstError = document.querySelector('.border-red-500');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+        }
+
+        function displaySummary(data) {
+            const output = document.getElementById('biodataOutput');
+            
+            // Format the output HTML
+            output.innerHTML = `
+                <div class="summary-section">
+                    <h3 class="text-lg font-semibold text-indigo-600">Personal Details</h3>
+                    <p><strong>Name:</strong> ${data.fullName}</p>
+                    <p><strong>DOB:</strong> ${data.dob} (Age: ${data.age})</p>
+                    <p><strong>Gender:</strong> ${data.gender}</p>
+                    <p><strong>Marital Status:</strong> ${data.maritalStatus}</p>
+                </div>
+                <hr class="my-3 border-indigo-100">
+                <div class="summary-section">
+                    <h3 class="text-lg font-semibold text-green-600">Health & Physical</h3>
+                    <p><strong>Height:</strong> ${data.height}</p>
+                    <p><strong>Weight:</strong> ${data.weight}</p>
+                    <p><strong>BMI:</strong> ${data.bmiResult}</p>
+                </div>
+                <hr class="my-3 border-indigo-100">
+                <div class="summary-section">
+                    <h3 class="text-lg font-semibold text-indigo-600">Professional Profile</h3>
+                    <p><strong>Education:</strong> ${data.education}</p>
+                    <p><strong>Occupation:</strong> ${data.occupation}</p>
+                    <p><strong>Income:</strong> ${data.income}</p>
+                </div>
+                <hr class="my-3 border-indigo-100">
+                <div class="summary-section">
+                    <h3 class="text-lg font-semibold text-indigo-600">Bio & Contact</h3>
+                    <p><strong>Email:</strong> ${data.contactEmail}</p>
+                    <p><strong>Bio:</strong> ${data.aboutMe.replace(/\n/g, '<br>')}</p>
+                </div>
+            `;
+            
+            document.getElementById('summaryModal').classList.remove('hidden');
+        }
+
+        function closeSummaryModal() {
+            document.getElementById('summaryModal').classList.add('hidden');
+        }
+
+    </script>
+
+</body>
+</html>
